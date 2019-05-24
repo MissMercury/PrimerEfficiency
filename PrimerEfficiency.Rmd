@@ -1,0 +1,88 @@
+---
+title: "Primer Efficiency"
+output:
+  pdf_document: default
+  pdf_notebook: default
+---
+
+#Load packages
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(readxl)
+library(qPCRanalysis)
+library(ggpubr)
+library(lazyeval)
+library(broom)
+```
+
+#Load excelfile
+```{r}
+qpcr <- read_excel("Primer_Eff_Test.xls", col_names = TRUE, sheet = 3, skip = 35)
+head(qpcr)
+```
+
+#Select columns
+```{r}
+qpcr <- select(qpcr, c("Sample Name", "Target Name", "CT", "Tm1", "Tm2", "Tm3"))
+colnames(qpcr) <- c("Sample", "Gene", "CT", "Tm1", "Tm2", "Tm3")
+head(qpcr)
+```
+
+
+#CT to numeric and remove undetermined
+```{r}
+qpcr$CT <- as.numeric(qpcr$CT)
+qpcr <- qpcr[ ! qpcr$Sample %in% "Blanc", ]
+qpcr <- qpcr[rowSums(is.na(qpcr)) == 2,]
+qpcr$Sample <- as.numeric(qpcr$Sample)
+qpcr$Sample <- abs(qpcr$Sample)
+qpcr$Gene <- gsub(pattern = " ", replacement = "_", x = qpcr$Gene)
+qpcr
+```
+
+#Plot
+```{r}
+for(i in unique(qpcr$Gene)){
+  print(qpcr %>% 
+          filter(Gene == i) %>%
+          ggplot(aes(x = Sample, y = CT)) + 
+          geom_point(color = "blue") + 
+          geom_smooth(method = "lm") +
+          ggtitle(i))
+}
+```
+
+#Linear model
+```{r}
+slope <- list()
+r2 <- list()
+for(i in unique(qpcr$Gene)){
+  temp <- NULL
+  temp <- qpcr %>% filter(Gene == i)
+  slope[[i]] <- coef(lm(CT ~ Sample, data = temp))[2]
+  r2[[i]] <- as.double(summary(lm(CT ~ Sample, data = temp))[8])
+}
+slope <- as_tibble(slope)
+slope <- as.matrix(slope)
+slope <- t(slope)
+slope <- as.tibble(slope, rownames = "Gene")
+colnames(slope) <- c("Gene", "Slope")
+r2 <- as_tibble(r2)
+r2 <- as.matrix(r2)
+r2 <- t(r2)
+r2 <- as.tibble(r2, rownames = "Gene")
+colnames(r2) <- c("Gene", "r2")
+x = slope[,2] / 3.3333
+x <- as.tibble(x)
+colnames(x) <- "Efficiency"
+x <- add_column(x, .before = "Efficiency", "Gene" = slope$Gene)
+table <- full_join(x, r2, by = NULL, copy = FALSE)
+table <- na.omit(table)
+```
+
+#Efficiency
+```{r}
+mutate(table, Pass.Fail = ifelse((Efficiency >= 0.9 & Efficiency <= 1.1) & r2 >= 0.975, "Efficient", "Not efficient"))
+```
+
