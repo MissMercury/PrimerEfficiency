@@ -178,16 +178,10 @@ colnames(slope) <- c("Gene", "Slope")
 r2 <- as_tibble(r2)
 r2 <- as.matrix(r2)
 r2 <- t(r2)
-r2 <- as.tibble(r2, rownames = "Gene")
-```
-
-    ## Warning: `as.tibble()` is deprecated, use `as_tibble()` (but mind the new semantics).
-    ## This warning is displayed once per session.
-
-``` r
+r2 <- as_tibble(r2, rownames = "Gene")
 colnames(r2) <- c("Gene", "r2")
 x = slope[,2] / 3.3333
-x <- as.tibble(x)
+x <- as_tibble(x)
 colnames(x) <- "Efficiency"
 x <- add_column(x, .before = "Efficiency", "Gene" = slope$Gene)
 table <- full_join(x, r2, by = NULL, copy = FALSE)
