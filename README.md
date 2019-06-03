@@ -14,14 +14,14 @@ library(tidyverse)
     ##   c.quosures     rlang
     ##   print.quosures rlang
 
-    ## ── Attaching packages ─────────────────────────────────────── tidyverse 1.2.1 ──
+    ## ── Attaching packages ──────────────────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──
 
     ## ✔ ggplot2 3.1.1     ✔ purrr   0.3.2
     ## ✔ tibble  2.1.1     ✔ dplyr   0.8.1
     ## ✔ tidyr   0.8.3     ✔ stringr 1.4.0
     ## ✔ readr   1.3.1     ✔ forcats 0.4.0
 
-    ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+    ## ── Conflicts ─────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
     ## ✖ dplyr::filter() masks stats::filter()
     ## ✖ dplyr::lag()    masks stats::lag()
 
@@ -167,10 +167,10 @@ for(i in unique(qpcr$Gene)){
 slope <- as_tibble(slope)
 slope <- as.matrix(slope)
 slope <- t(slope)
-slope <- as.tibble(slope, rownames = "Gene")
+slope <- as_tibble(slope, rownames = "Gene")
 ```
 
-    ## Warning: `as.tibble()` is deprecated, use `as_tibble()` (but mind the new semantics).
+    ## Warning: `as_tibble.matrix()` requires a matrix with column names or a `.name_repair` argument. Using compatibility `.name_repair`.
     ## This warning is displayed once per session.
 
 ``` r
@@ -179,6 +179,12 @@ r2 <- as_tibble(r2)
 r2 <- as.matrix(r2)
 r2 <- t(r2)
 r2 <- as.tibble(r2, rownames = "Gene")
+```
+
+    ## Warning: `as.tibble()` is deprecated, use `as_tibble()` (but mind the new semantics).
+    ## This warning is displayed once per session.
+
+``` r
 colnames(r2) <- c("Gene", "r2")
 x = slope[,2] / 3.3333
 x <- as.tibble(x)
