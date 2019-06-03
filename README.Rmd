@@ -65,7 +65,7 @@ for(i in unique(qpcr$Gene)){
 slope <- as_tibble(slope)
 slope <- as.matrix(slope)
 slope <- t(slope)
-slope <- as.tibble(slope, rownames = "Gene")
+slope <- as_tibble(slope, rownames = "Gene")
 colnames(slope) <- c("Gene", "Slope")
 r2 <- as_tibble(r2)
 r2 <- as.matrix(r2)
